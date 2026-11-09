@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://api.anthropic.com https://api.elevenlabs.io; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#13101a">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Eris">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head><body>
+<title>Eris Русский</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: aplicativo com trilho lateral no desktop e barra de abas no celular; conteúdo em coluna única de leitura. Paleta: ameixa-noite, brasa carmim (cabelo da Eris) e ouro velho. */
+:root{
+  --bg:#f6f3f8; --surface:#ffffff; --surface2:#efeaf4; --ink:#1d1727; --muted:#675f77; --line:#e2dcea;
+  --ember:#c4263b; --on-ember:#ffffff; --ember-soft:#fbe6e9; --ember-deep:#8f1628;
+  --gold:#8f6208; --gold-soft:#f8ecd2;
+  --ok:#1c7a4b; --ok-soft:#e1f3ea; --bad:#b3261e; --bad-soft:#fbe4e1;
+  --shadow:0 1px 2px rgba(29,23,39,.06),0 8px 24px rgba(29,23,39,.06);
+  --f-display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --dock:64px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#13101a; --surface:#1c1726; --surface2:#251f31; --ink:#f1edf7; --muted:#a69fb6; --line:#30293f;
+  --ember:#ff6b7a; --on-ember:#1e0a10; --ember-soft:#3a1b27; --ember-deep:#ff9aa5;
+  --gold:#f0c26a; --gold-soft:#33291a;
+  --ok:#5cc98d; --ok-soft:#14301f; --bad:#ff8a80; --bad-soft:#3a1d1d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#13101a; --surface:#1c1726; --surface2:#251f31; --ink:#f1edf7; --muted:#a69fb6; --line:#30293f;
+  --ember:#ff6b7a; --on-ember:#1e0a10; --ember-soft:#3a1b27; --ember-deep:#ff9aa5;
+  --gold:#f0c26a; --gold-soft:#33291a;
+  --ok:#5cc98d; --ok-soft:#14301f; --bad:#ff8a80; --bad-soft:#3a1d1d;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+p{margin:0}
+h1,h2,h3{margin:0}
+h2{font-family:var(--f-display);font-weight:600;font-size:1.5rem;line-height:1.25;text-wrap:balance;letter-spacing:-.01em}
+h3{font-size:1.02rem;font-weight:600}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* estrutura */
+.shell{display:grid;grid-template-columns:1fr;min-height:100vh}
+.col{min-width:0}
+.wrap{max-width:780px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:20px calc(var(--dock) + 28px + env(safe-area-inset-bottom,0px))}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar>div{max-width:780px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:1rem;letter-spacing:-.01em}
+.logo small{display:block;font-family:var(--f-body);font-weight:500;font-size:.7rem;color:var(--muted);letter-spacing:.04em}
+.mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;color:var(--on-ember);background:linear-gradient(145deg,var(--ember),var(--ember-deep) 140%);flex:none}
+.chips{display:flex;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;background:var(--surface);border:1px solid var(--line);font-size:.82rem;font-variant-numeric:tabular-nums;font-weight:600}
+.chip svg{width:14px;height:14px;color:var(--ember)}
+.chip.gold svg{color:var(--gold)}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;padding:0;color:var(--muted)}
+.icon-btn svg{width:18px;height:18px}
+
+/* navegação */
+.nav{position:fixed;z-index:25;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);
+  padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.nav .brand,.nav .side{display:none}
+.links{display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.links a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:12px;text-decoration:none;color:var(--muted);font-size:.7rem;font-weight:600}
+.links a svg{width:22px;height:22px}
+.links a[aria-current="page"]{color:var(--ember);background:var(--ember-soft)}
+@media (min-width:900px){
+  .shell{grid-template-columns:248px 1fr}
+  .bar{display:none}
+  .nav{position:sticky;top:0;height:100vh;border-top:0;border-right:1px solid var(--line);padding:24px 16px;display:flex;flex-direction:column;gap:28px}
+  .nav .brand,.nav .side{display:flex}
+  .nav .brand{align-items:center;justify-content:space-between}
+  .links{grid-template-columns:1fr;gap:4px}
+  .links a{flex-direction:row;gap:12px;padding:10px 12px;font-size:.95rem}
+  .links a svg{width:20px;height:20px}
+  .side{margin-top:auto;flex-direction:column;gap:8px}
+  .wrap{padding-block:40px 48px}
+  :root{--dock:0px}
+}
+
+/* peças comuns */
+.view{display:flex;flex-direction:column;gap:26px}
+.view[hidden]{display:none}
+.eyebrow{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ember);font-weight:700}
+.lead{color:var(--muted);max-width:62ch}
+.muted{color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:10px}
+.head{display:flex;flex-direction:column;gap:8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--ember);color:var(--on-ember);border:0;border-radius:12px;padding:11px 18px;font-weight:600;text-decoration:none;transition:transform .12s,filter .12s}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{background:var(--surface2);filter:none}
+.btn svg{width:18px;height:18px}
+.btn:disabled{opacity:.5;cursor:default}
+.pill{display:inline-block;font-size:.72rem;padding:3px 9px;border-radius:99px;background:var(--surface2);color:var(--muted);font-weight:700}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.gold{background:var(--gold-soft);color:var(--gold)}
+.ru{font-size:1.18rem;font-weight:500}
+.tr{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.speak{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ember);display:grid;place-items:center;padding:0}
+.speak:hover{background:var(--ember-soft)}
+.speak svg{width:17px;height:17px}
+.notice{border-left:3px solid var(--gold);background:var(--gold-soft);border-radius:0 12px 12px 0;padding:10px 14px;font-size:.92rem;max-width:66ch}
+.toast{position:fixed;left:50%;bottom:calc(var(--dock) + 18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:.9rem;max-width:min(92vw,420px);box-shadow:var(--shadow)}
+.toast[hidden]{display:none}
+
+/* início */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.ring{position:relative;width:92px;height:92px}
+.ring svg{width:92px;height:92px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:9}
+.ring .trk{stroke:var(--surface2)}
+.ring .val{stroke:var(--ember);stroke-linecap:round;transition:stroke-dashoffset .5s}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-size:1.15rem}
+.tasks{display:flex;flex-direction:column;gap:8px}
+.task{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--line);text-decoration:none;color:inherit}
+.task:hover{border-color:var(--ember)}
+.task .tick{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:transparent}
+.task.done .tick{background:var(--ok);border-color:var(--ok);color:#fff}
+.task .tick svg{width:14px;height:14px}
+.task small{display:block;color:var(--muted)}
+.task>div{flex:1;min-width:0}
+.eris-card{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:linear-gradient(135deg,var(--ember-soft),var(--surface) 70%)}
+.avatar{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1.5rem;color:var(--on-ember);background:radial-gradient(circle at 30% 25%,var(--ember),var(--ember-deep) 120%);flex:none;box-shadow:inset 0 -6px 12px rgba(0,0,0,.18)}
+.avatar.sm{width:36px;height:36px;font-size:1rem}
+.quote{font-family:var(--f-display);font-weight:600;font-size:1.35rem;line-height:1.3}
+
+/* lição */
+.letters{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.letter{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px;text-align:left}
+.letter:hover{border-color:var(--ember)}
+.letter .big{font-size:1.9rem;font-weight:600;line-height:1.1}
+.letter .snd{font-family:var(--f-mono);font-size:.76rem;color:var(--ember)}
+.letter .ex{font-size:.8rem;color:var(--muted)}
+.letter.false{background:var(--gold-soft);border-color:transparent}
+.letter.false .snd{color:var(--gold)}
+.vocab{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
+.vocab .it{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.vocab .it:last-child{border-bottom:0}
+.vocab .pt{grid-column:1;color:var(--muted);font-size:.92rem}
+.vocab .speak{grid-column:2;grid-row:1 / span 2}
+.example{display:flex;align-items:flex-start;gap:12px}
+.example>div{min-width:0}
+.prose{max-width:64ch}
+.prose p{white-space:pre-line}
+.quiz{display:flex;flex-direction:column;gap:20px}
+.q{display:flex;flex-direction:column;gap:10px}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.opt{text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.opt:not(:disabled):hover{border-color:var(--ember)}
+.opt.right{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:600}
+.opt.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.explain{font-size:.9rem;color:var(--muted)}
+
+/* fala */
+.drill{display:flex;flex-direction:column;gap:18px;align-items:flex-start}
+.target{font-family:var(--f-display);font-weight:600;font-size:clamp(1.5rem,5vw,2.1rem);line-height:1.2}
+.drill textarea,.composer textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--bg);resize:vertical}
+.big-mic{width:72px;height:72px;border-radius:50%;border:0;background:var(--ember);color:var(--on-ember);display:grid;place-items:center;padding:0;box-shadow:0 8px 20px color-mix(in srgb,var(--ember) 40%,transparent)}
+.big-mic svg{width:30px;height:30px}
+.big-mic.live{animation:pulse 1.1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ember) 55%,transparent)}100%{box-shadow:0 0 0 22px transparent}}
+.score{font-family:var(--f-display);font-size:2rem;font-weight:700}
+.words{display:flex;flex-wrap:wrap;gap:6px}
+.words span{padding:2px 10px;border-radius:8px;font-size:1.05rem}
+.words .hit{background:var(--ok-soft);color:var(--ok)}
+.words .miss{background:var(--bad-soft);color:var(--bad);text-decoration:underline wavy}
+select,input[type=text],input[type=password]{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-width:100%}
+label.small{font-size:.85rem;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input[type=range]{accent-color:var(--ember)}
+
+/* eris / chat */
+.chat{display:flex;flex-direction:column;gap:14px}
+.msg{max-width:90%;display:flex;gap:10px;align-items:flex-start}
+.msg .bub{padding:12px 16px;border-radius:18px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.msg.her .bub{background:var(--surface);border:1px solid var(--line);border-top-left-radius:6px}
+.msg.me{align-self:flex-end}
+.msg.me .bub{background:var(--ember);color:var(--on-ember);border-top-right-radius:6px}
+.msg .fix{font-size:.88rem;border-top:1px dashed var(--line);padding-top:6px;margin-top:4px;color:var(--gold)}
+.msg details summary{cursor:pointer;font-size:.82rem;color:var(--muted)}
+.composer{display:flex;flex-direction:column;gap:10px;position:sticky;bottom:calc(var(--dock) + 8px + env(safe-area-inset-bottom,0px));background:var(--bg);padding-top:8px}
+@media (min-width:900px){.composer{bottom:0;padding-bottom:8px}}
+.typing{display:inline-flex;gap:4px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bl 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bl{0%,60%,100%{opacity:.25}30%{opacity:1}}
+
+/* progresso */
+.heat{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;max-width:340px}
+.heat i{aspect-ratio:1;border-radius:6px;background:var(--surface2)}
+.heat i.l1{background:color-mix(in srgb,var(--ember) 30%,var(--surface2))}
+.heat i.l2{background:color-mix(in srgb,var(--ember) 60%,var(--surface2))}
+.heat i.l3{background:var(--ember)}
+.bar-track{height:10px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.bar-track i{display:block;height:100%;background:var(--ember);border-radius:99px}
+.list .item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat b{display:block;font-family:var(--f-display);font-size:1.7rem}
+.stat span{color:var(--muted);font-size:.85rem}
+
+/* configurações */
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(10,6,16,.55);display:grid;place-items:end center}
+.sheet[hidden]{display:none}
+.sheet .panel{width:min(520px,100%);max-height:92vh;overflow:auto;background:var(--surface);border-radius:22px 22px 0 0;padding:22px max(20px,env(safe-area-inset-left,0px)) calc(24px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px}
+@media (min-width:900px){.sheet{place-items:center}.sheet .panel{border-radius:22px}}
+@media (prefers-reduced-motion:no-preference){.msg,.q,.task,.card{animation:in .25s ease-out}@keyframes in{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.7 7L3 21l2-5.5A8 8 0 1 1 21 12z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+    <symbol id="i-spk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2s5 4.5 5 9.5a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-5 1-8z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.5 7 .8-5.2 4.8 1.4 7L12 17.600 5.800 21l1.400-7L2 9.300l7-.8z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.500" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></symbol>
+  </defs>
+</svg>
+
+<div class="shell">
+  <nav class="nav" aria-label="Seções">
+    <div class="brand">
+      <div class="logo"><span class="mark">Э</span><span>Eris<small>Русский язык</small></span></div>
+      <button class="icon-btn" data-open-settings aria-label="Configurações"><svg><use href="#i-gear"/></svg></button>
+    </div>
+    <div class="links">
+      <a href="#hoje" data-v="hoje"><svg><use href="#i-home"/></svg>Hoje</a>
+      <a href="#licao" data-v="licao"><svg><use href="#i-book"/></svg>Lição</a>
+      <a href="#fala" data-v="fala"><svg><use href="#i-mic"/></svg>Fala</a>
+      <a href="#eris" data-v="eris"><svg><use href="#i-chat"/></svg>Eris</a>
+      <a href="#progresso" data-v="progresso"><svg><use href="#i-chart"/></svg>Progresso</a>
+    </div>
+    <div class="side">
+      <span class="chip"><svg><use href="#i-flame"/></svg><span class="st-streak">0</span> dias seguidos</span>
+      <span class="chip gold"><svg><use href="#i-star"/></svg><span class="st-xp">0</span> XP</span>
+    </div>
+  </nav>
+  <div class="col">
+    <header class="bar"><div>
+      <div class="logo"><span class="mark">Э</span><span>Eris<small>Русский язык</small></span></div>
+      <div class="chips">
+        <span class="chip"><svg><use href="#i-flame"/></svg><span class="st-streak">0</span></span>
+        <span class="chip gold"><svg><use href="#i-star"/></svg><span class="st-xp">0</span></span>
+        <button class="icon-btn" data-open-settings aria-label="Configurações"><svg><use href="#i-gear"/></svg></button>
+      </div>
+    </div></header>
+    <main class="wrap">
+      <section class="view" id="v-hoje"></section>
+      <section class="view" id="v-licao" hidden></section>
+      <section class="view" id="v-fala" hidden></section>
+      <section class="view" id="v-eris" hidden></section>
+      <section class="view" id="v-progresso" hidden></section>
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="set-title">
+    <div class="row" style="justify-content:space-between"><h2 id="set-title" style="font-size:1.2rem">Configurações</h2><button class="btn ghost" id="set-close">Fechar</button></div>
+    <div class="stack" id="el-box">
+      <h3>Voz da Eris (ElevenLabs)</h3>
+      <p class="muted">Voz natural gerada por IA. Cole sua chave do ElevenLabs e escolha a voz. Se ficar vazio, o app usa a voz do sistema.</p>
+      <label class="small" for="el-key">Chave <input type="password" id="el-key" placeholder="sk_…" autocomplete="off"></label>
+      <label class="small" for="el-voice">ID da voz <input type="text" id="el-voice" placeholder="ex.: 21m00Tcm4TlvDq8ikWAM" autocomplete="off"></label>
+      <label class="small" for="el-pick">Minhas vozes <select id="el-pick"><option value="">Toque em Carregar vozes</option></select></label>
+      <div class="stack" id="el-meter">
+        <div class="row" style="justify-content:space-between"><b>Uso deste mês</b><span class="muted" id="el-count">0 de 10.000 caracteres</span></div>
+        <div class="bar-track" role="meter" aria-label="Uso do ElevenLabs no mês" aria-valuemin="0" aria-valuemax="100"><i id="el-bar" style="width:0%"></i></div>
+        <p class="muted" id="el-warn" style="font-size:.88rem"></p>
+      </div>
+      <label class="small" for="el-limit">Limite mensal (caracteres) <input type="number" id="el-limit" min="0" step="1000" style="width:130px"></label>
+      <p class="muted" style="font-size:.85rem">Plano grátis do ElevenLabs: cerca de 10.000 caracteres por mês. Ao chegar no limite, o app usa a voz do sistema até o mês virar.</p>
+      <label class="small" for="el-model">Modelo <select id="el-model"><option value="eleven_flash_v2_5">Rápido e econômico (flash v2.5)</option><option value="eleven_multilingual_v2">Mais expressivo (multilingual v2)</option></select></label>
+      <div class="row"><button class="btn ghost" id="el-load">Carregar vozes</button><button class="btn ghost" id="el-test"><svg width="18" height="18"><use href="#i-spk"/></svg>Testar voz da Eris</button></div>
+      <p class="muted" id="el-note"></p>
+    </div>
+    <div class="stack">
+      <h3>Voz do sistema (reserva)</h3>
+      <p class="muted" id="voice-info"></p>
+      <label class="small" for="voice-sel">Voz russa <select id="voice-sel"></select></label>
+      <label class="small" for="rate">Velocidade <input id="rate" type="range" min="0.5" max="1.1" step="0.05"></label>
+      <div class="row"><button class="btn ghost" id="voice-test"><svg width="18" height="18"><use href="#i-spk"/></svg>Testar voz</button></div>
+    </div>
+    <div class="stack" id="key-box">
+      <h3>Chave da API do Claude</h3>
+      <p class="muted">Necessária para conversar com a Eris e gerar lições quando o app roda fora do Claude. Fica salva só neste aparelho.</p>
+      <label class="small" for="api-key">Chave <input type="password" id="api-key" placeholder="sk-ant-…" autocomplete="off"></label>
+    </div>
+    <div class="stack"><h3>Dados</h3><div class="row"><button class="btn ghost" id="reset-all">Apagar progresso deste aparelho</button></div></div>
+  </div>
+</div>
+
+<script>
+window.__SEED__=[{"n": 1, "level": "A1", "createdAt": "2026-11-02", "title": "Primeiras letras e primeiras palavras", "intro": "Hoje você aprende as letras do alfabeto russo que parecem com as nossas, incluindo as \"falsas amigas\", e já usa elas para cumprimentar alguém e dizer seu nome. O acento (´) nas palavras mostra a sílaba forte: em russo ela muda tudo, então ouça sempre o áudio.", "lettersTitle": "Alfabeto, parte 1: as letras conhecidas", "lettersNote": "As letras em destaque dourado são falsas amigas: parecem latinas, mas soam diferente. Toque numa letra para ouvir a palavra de exemplo.", "letters": [{"l": "А а", "sound": "a", "example": "ма́ма", "examplePt": "mamãe"}, {"l": "К к", "sound": "k", "example": "кот", "examplePt": "gato"}, {"l": "М м", "sound": "m", "example": "мост", "examplePt": "ponte"}, {"l": "О о", "sound": "o (forte) / a (fraco)", "example": "молоко́", "examplePt": "leite"}, {"l": "Т т", "sound": "t", "example": "та́кси", "examplePt": "táxi"}, {"l": "В в", "sound": "v", "example": "во́дка", "examplePt": "vodca", "false": true}, {"l": "Н н", "sound": "n", "example": "нет", "examplePt": "não", "false": true}, {"l": "Р р", "sound": "r vibrado", "example": "рот", "examplePt": "boca", "false": true}, {"l": "С с", "sound": "s", "example": "сок", "examplePt": "suco", "false": true}, {"l": "У у", "sound": "u", "example": "у́тро", "examplePt": "manhã", "false": true}, {"l": "Х х", "sound": "rr (como em \"carro\" no Rio)", "example": "хорошо́", "examplePt": "bem", "false": true}, {"l": "Е е", "sound": "ie", "example": "нет", "examplePt": "não", "false": true}], "vocab": [{"ru": "приве́т", "tr": "privét", "pt": "oi (informal)"}, {"ru": "здра́вствуйте", "tr": "zdrástvuitie", "pt": "olá (formal, ou para várias pessoas)"}, {"ru": "меня́ зову́т…", "tr": "miniá zavút…", "pt": "meu nome é… (lit. \"me chamam\")"}, {"ru": "как тебя́ зову́т?", "tr": "kak tibiá zavút?", "pt": "qual é o seu nome? (informal)"}, {"ru": "как дела́?", "tr": "kak dilá?", "pt": "como vai?"}, {"ru": "хорошо́", "tr": "kharashó", "pt": "bem"}, {"ru": "спаси́бо", "tr": "spassíba", "pt": "obrigado"}, {"ru": "да", "tr": "da", "pt": "sim"}, {"ru": "нет", "tr": "niet", "pt": "não"}, {"ru": "пока́", "tr": "paká", "pt": "tchau"}, {"ru": "до свида́ния", "tr": "da svidánia", "pt": "até logo (formal)"}, {"ru": "я", "tr": "ia", "pt": "eu"}, {"ru": "ты", "tr": "ty", "pt": "você (informal)"}], "grammar": [{"title": "Sem o verbo \"ser\" no presente", "body": "Em russo, o verbo \"ser/estar\" some no presente. Você simplesmente junta as palavras: \"Eu Sasha\", \"Eu estudante\". Também não existem artigos (o, a, um, uma).", "examples": [{"ru": "Я Са́ша.", "tr": "Ia Sásha.", "pt": "Eu sou o Sasha."}, {"ru": "Я студе́нт.", "tr": "Ia studiént.", "pt": "Eu sou estudante."}, {"ru": "Ты бразилья́нец?", "tr": "Ty brazilianits?", "pt": "Você é brasileiro?"}]}, {"title": "O \"o\" fraco vira \"a\"", "body": "Quando a letra О não está na sílaba forte, ela soa quase como \"a\". Por isso хорошо́ soa \"kharashó\" e молоко́ soa \"malakó\". Esse é o segredo número um de um bom sotaque russo.", "examples": [{"ru": "хорошо́", "tr": "kharashó", "pt": "bem"}, {"ru": "молоко́", "tr": "malakó", "pt": "leite"}]}], "phrases": [{"ru": "Приве́т!", "tr": "Privét!", "pt": "Oi!"}, {"ru": "Здра́вствуйте!", "tr": "Zdrástvuitie!", "pt": "Olá! (formal)"}, {"ru": "Меня́ зову́т Са́ша.", "tr": "Miniá zavút Sásha.", "pt": "Meu nome é Sasha."}, {"ru": "Как тебя́ зову́т?", "tr": "Kak tibiá zavút?", "pt": "Qual é o seu nome?"}, {"ru": "Как дела́?", "tr": "Kak dilá?", "pt": "Como vai?"}, {"ru": "Хорошо́, спаси́бо.", "tr": "Kharashó, spassíba.", "pt": "Bem, obrigado."}, {"ru": "Я студе́нт.", "tr": "Ia studiént.", "pt": "Eu sou estudante."}, {"ru": "Пока́!", "tr": "Paká!", "pt": "Tchau!"}], "exercises": [{"q": "Como se lê a letra Р?", "options": ["p", "r", "ro", "b"], "answer": 1, "explain": "Р é uma falsa amiga: soa como o r vibrado de \"caro\"."}, {"q": "Qual palavra quer dizer \"não\"?", "options": ["да", "нет", "кот", "сок"], "answer": 1, "explain": "нет (niet) = não. да = sim."}, {"q": "Como você diz \"Meu nome é Sasha\"?", "options": ["Я есть Саша.", "Как тебя зовут, Саша?", "Меня зовут Саша.", "Пока, Саша."], "answer": 2, "explain": "Меня зовут… = literalmente \"me chamam…\"."}, {"q": "Você vai falar com um professor que não conhece. Qual cumprimento usar?", "options": ["Привет!", "Пока!", "Здравствуйте!", "Хорошо!"], "answer": 2, "explain": "Здравствуйте é a forma formal. Привет é para amigos."}, {"q": "Como soa хорошо́?", "options": ["horoshó", "kharashó", "khoroshó", "rorosho"], "answer": 1, "explain": "Х soa como rr carioca, e os О fracos viram \"a\": kharashó."}, {"q": "\"Eu sou estudante\" em russo é:", "options": ["Я студент.", "Я есть студент.", "Я это студент.", "Студент да."], "answer": 0, "explain": "No presente o verbo \"ser\" desaparece: Я студент."}], "conversation": {"pt": "Cumprimente a Eris, diga seu nome, pergunte o nome dela e como ela está. Termine se despedindo.", "scenario": "Você encontrou a Eris, uma espadachim de cabelo vermelho, na entrada de uma guilda em São Petersburgo. Ela quer saber quem você é e como você está."}}];
+(() => {
+const SEED = (typeof window.__SEED__ !== "undefined" ? window.__SEED__ : []);
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ic = (n, c="") => `<svg class="${c}"><use href="#i-${n}"/></svg>`;
+const dkey = (d=new Date()) => { const z = d.getTimezoneOffset()*6e4; return new Date(d - z).toISOString().slice(0,10); };
+const today = () => dkey();
+const ERIS_HELLO = {ru:"Привет. Меня зовут Эрис. Как тебя зовут?", tr:"Privét. Miniá zavút Éris. Kak tibiá zavút?", pt:"Oi. Meu nome é Eris. Qual é o seu nome?"};
+
+/* ---------- ambiente ---------- */
+let db = null, sample = null;
+const store = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+
+/* ---------- estado ---------- */
+const blank = () => ({xp:0, streak:0, lastDay:null, done:{}, quiz:{}, spoken:{}, current:1, days:{}});
+let prog = Object.assign(blank(), store.get("ru-prog", {}));
+let set = Object.assign({voice:"", rate:0.85, key:"", elKey:"", elVoice:"21m00Tcm4TlvDq8ikWAM", elModel:"eleven_flash_v2_5", elLimit:10000}, store.get("ru-set", {}));
+let elUse = store.get("ru-el-use", {month:"", chars:0});
+const monthKey = () => dkey().slice(0,7);
+function elUsed(){ if (elUse.month !== monthKey()) elUse = {month:monthKey(), chars:0}; return elUse.chars; }
+function elAddChars(n){ elUsed(); elUse.chars += n; store.set("ru-el-use", elUse); paintUsage(); }
+function elLeft(){ return Math.max(0, (set.elLimit||0) - elUsed()); }
+let extraLessons = store.get("ru-lessons", []);
+let dbLessons = [];
+let saveTimer = null;
+function save(){
+  store.set("ru-prog", prog);
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => { if (db) { try { await db.doc("progress/main").set(prog); } catch(e){} } }, 800);
+}
+function day(){ const t = today(); return prog.days[t] || (prog.days[t] = {xp:0, speak:0, chat:0, lesson:false}); }
+function touchDay(){
+  const t = today(); if (prog.lastDay === t) return;
+  const y = dkey(new Date(Date.now() - 864e5));
+  prog.streak = prog.lastDay === y ? prog.streak + 1 : 1;
+  prog.lastDay = t;
+}
+function addXp(n){ touchDay(); prog.xp += n; day().xp += n; save(); stats(); }
+function stats(){ $$(".st-streak").forEach(e => e.textContent = prog.streak); $$(".st-xp").forEach(e => e.textContent = prog.xp); }
+
+function allLessons(){
+  const m = new Map();
+  [...SEED, ...extraLessons, ...dbLessons].forEach(l => m.set(l.n, l));
+  return [...m.values()].sort((a,b) => a.n - b.n);
+}
+const lessonByN = n => allLessons().find(l => l.n === n);
+const currentLesson = () => { const ls = allLessons(); return ls.find(l => l.n === prog.current) || ls[ls.length-1]; };
+
+/* ---------- avisos ---------- */
+let toastT = null;
+function toast(msg){ const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 4200); }
+
+/* ---------- voz (síntese) ---------- */
+const TTS = "speechSynthesis" in window;
+let ruVoices = [];
+function loadVoices(){
+  if (!TTS) return;
+  ruVoices = speechSynthesis.getVoices().filter(v => /^ru/i.test(v.lang));
+  fillVoiceSelect();
+}
+if (TTS){ loadVoices(); speechSynthesis.addEventListener?.("voiceschanged", loadVoices); setTimeout(loadVoices, 600); setTimeout(loadVoices, 2000); }
+function erisVoice(){
+  if (set.voice){ const v = ruVoices.find(x => x.voiceURI === set.voice); if (v) return v; }
+  const fem = /milena|irina|svetlana|katya|tatyana|alena|anna|google|microsoft (svetlana|irina|ekaterina)|ekaterina|yelena|olga/i;
+  const male = /yuri|pavel|dmitry|maxim|aleksandr|ivan/i;
+  return ruVoices.find(v => fem.test(v.name) && !male.test(v.name)) || ruVoices.find(v => !male.test(v.name)) || ruVoices[0] || null;
+}
+/* ElevenLabs: áudio por API, com cache no aparelho */
+const saveSet = () => store.set("ru-set", set);
+let elAudio = null;
+const elOn = () => !!set.elKey && !sample && elLeft() > 0;
+async function elFetch(text){
+  const clean = String(text).replace(/\u0301/g, "");
+  const key = "https://eris.local/tts/" + encodeURIComponent([set.elVoice, set.elModel, clean].join("|"));
+  let cache = null; try { cache = await caches.open("eris-tts"); const hit = await cache.match(key); if (hit) return await hit.blob(); } catch(e){}
+  const r = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + encodeURIComponent(set.elVoice) + "?output_format=mp3_44100_128", {
+    method:"POST", headers:{"xi-api-key":set.elKey, "content-type":"application/json", "accept":"audio/mpeg"},
+    body:JSON.stringify({text:clean, model_id:set.elModel, ...(set.elModel === "eleven_flash_v2_5" ? {language_code:"ru"} : {}), voice_settings:{stability:0.4, similarity_boost:0.8, style:0.35, use_speaker_boost:true}})});
+  if (!r.ok){ const err = new Error("el"); err.status = r.status; throw err; }
+  elAddChars(clean.length);
+  const blob = await r.blob();
+  try { await cache?.put(key, new Response(blob, {headers:{"content-type":"audio/mpeg"}})); } catch(e){}
+  return blob;
+}
+async function sayEL(text, r){
+  try{
+    elAudio?.pause(); speechSynthesis?.cancel();
+    const blob = await elFetch(text), a = new Audio(URL.createObjectURL(blob));
+    a.preservesPitch = true; a.playbackRate = r && r < 0.7 ? 0.75 : Math.min(1.2, Math.max(0.7, (r || set.rate) / 0.85));
+    elAudio = a; await a.play(); return true;
+  }catch(e){
+    const st = e?.status;
+    toast(elLeft() <= 0 && set.elKey ? "Você chegou ao limite de caracteres deste mês. Usei a voz do sistema. Ajuste o limite em Configurações." : st === 401 ? "A chave do ElevenLabs foi recusada. Confira em Configurações. Usei a voz do sistema."
+      : st === 402 || st === 429 ? "Os créditos do ElevenLabs acabaram ou o limite foi atingido. Usei a voz do sistema."
+      : st === 404 || st === 422 ? "O ElevenLabs não encontrou essa voz. Confira o ID da voz em Configurações. Usei a voz do sistema."
+      : e?.name === "NotAllowedError" ? "Toque no botão de ouvir de novo para liberar o áudio."
+      : "Não consegui falar com o ElevenLabs. Usei a voz do sistema.");
+    return e?.name === "NotAllowedError";
+  }
+}
+function say(text, r){
+  if (set.elKey && !sample && elLeft() < String(text).replace(/\u0301/g,"").length){
+    toast("Limite de caracteres do mês atingido. Usei a voz do sistema. Ajuste o limite em Configurações.");
+    sayBrowser(text, r); return;
+  }
+  if (elOn()){ sayEL(text, r).then(ok => { if (!ok) sayBrowser(text, r); }); return; }
+  sayBrowser(text, r);
+}
+function sayBrowser(text, r){
+  if (!TTS){ toast("Este navegador não tem síntese de voz. Abra o app no Chrome, Edge ou Safari."); return; }
+  loadVoices();
+  if (!ruVoices.length) toast("Nenhuma voz russa encontrada neste aparelho. Instale uma em Configurações do sistema → Idioma e voz → Russo.");
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(String(text).replace(/́/g, ""));
+    u.lang = "ru-RU"; const v = erisVoice(); if (v) u.voice = v;
+    u.rate = r || set.rate; u.pitch = 1.08; u.volume = 1;
+    u.onerror = ev => { if (ev.error && ev.error !== "canceled" && ev.error !== "interrupted") toast("Não consegui tocar o áudio (" + ev.error + "). Toque em Testar voz nas configurações."); };
+    setTimeout(() => speechSynthesis.speak(u), 60);
+  }catch(e){ toast("Não consegui tocar o áudio neste aparelho."); }
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-say]"); if (b) say(b.dataset.say, b.dataset.rate ? +b.dataset.rate : 0); });
+const spk = t => `<button class="speak" data-say="${esc(t)}" aria-label="Ouvir: ${esc(t)}">${ic("spk")}</button>`;
+
+/* ---------- IA (Claude) ---------- */
+const hasAI = () => !!sample || !!set.key;
+function parseJSON(t){
+  try { return JSON.parse(t); } catch(e){}
+  const m = t.match(/```(?:json)?\s*([\s\S]*?)```/); if (m) { try { return JSON.parse(m[1]); } catch(e){} }
+  const a = t.indexOf("{"), b = t.lastIndexOf("}");
+  if (a >= 0 && b > a) { try { return JSON.parse(t.slice(a, b+1)); } catch(e){} }
+  throw {code:"invalid_json"};
+}
+async function askJSON(system, turns, {tier="default", signal}={}){
+  if (sample){
+    return sample.json([{role:"user", content:system}, {role:"assistant", content:"Entendido. Responderei somente com JSON."}, ...turns], {cache:false, signal, modelTier:tier});
+  }
+  if (!set.key) throw {code:"no_key"};
+  let r;
+  try{
+    r = await fetch("https://api.anthropic.com/v1/messages", {method:"POST", signal,
+      headers:{"content-type":"application/json","x-api-key":set.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model: tier === "complex" ? "claude-sonnet-5-5" : "claude-haiku-5-5", max_tokens: tier === "complex" ? 7000 : 700, system, messages:turns})});
+  }catch(e){ throw {code: e?.name === "AbortError" ? "cancelled" : "upstream_error"}; }
+  if (!r.ok) throw {code: r.status === 401 ? "bad_key" : r.status === 429 ? "rate_limited" : "upstream_error"};
+  const j = await r.json();
+  return parseJSON((j.content || []).map(c => c.text || "").join(""));
+}
+function aiError(e){
+  const c = e?.code;
+  return c === "no_key" ? "Cole sua chave da API em Configurações para usar a IA fora do Claude."
+    : c === "bad_key" ? "A chave da API foi recusada. Confira em Configurações."
+    : c === "not_granted" ? "Você não permitiu o acesso ao Claude. Recarregue para permitir."
+    : c === "rate_limited" ? "Limite de uso atingido. Tente de novo mais tarde."
+    : c === "cancelled" ? "" : "Não deu certo desta vez. Tente de novo.";
+}
+
+/* ---------- roteamento ---------- */
+const views = ["hoje","licao","fala","eris","progresso"];
+let viewLesson = null;
+function route(){
+  const v = views.includes(location.hash.slice(1)) ? location.hash.slice(1) : "hoje";
+  views.forEach(n => { $("#v-"+n).hidden = n !== v; });
+  $$(".links a").forEach(a => a.dataset.v === v ? a.setAttribute("aria-current","page") : a.removeAttribute("aria-current"));
+  ({hoje:renderHoje, licao:renderLicao, fala:renderFala, eris:renderEris, progresso:renderProgresso})[v]();
+  scrollTo(0,0);
+}
+addEventListener("hashchange", route);
+function refresh(){ const v = views.find(n => !$("#v-"+n).hidden); ({hoje:renderHoje, licao:renderLicao, fala:renderFala, eris:()=>{}, progresso:renderProgresso})[v]?.(); stats(); }
+
+/* ---------- hoje ---------- */
+function phrasePool(){ return allLessons().flatMap(l => (l.phrases||[]).map(p => ({...p, n:l.n}))); }
+function renderHoje(){
+  const el = $("#v-hoje"), d = day(), L = currentLesson();
+  const pool = phrasePool();
+  const doy = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0)) / 864e5);
+  const ph = pool.length ? pool[doy % pool.length] : null;
+  const hr = new Date().getHours();
+  const hello = hr < 12 ? "Bom dia" : hr < 18 ? "Boa tarde" : "Boa noite";
+  const tasks = [
+    {href:"#licao", done:d.lesson, t: L ? `Lição ${L.n}: ${L.title}` : "Lição do dia", s: d.lesson ? "Concluída hoje" : "15 a 20 minutos"},
+    {href:"#fala", done:d.speak >= 3, t:"Falar 3 frases em voz alta", s:`${Math.min(d.speak,3)} de 3`},
+    {href:"#eris", done:d.chat >= 3, t:"Conversar com a Eris", s:`${Math.min(d.chat,3)} de 3 mensagens`}
+  ];
+  const n = tasks.filter(t => t.done).length, C = 2*Math.PI*41;
+  el.innerHTML = `
+  <div class="head"><span class="eyebrow">${hello}</span><h2>${n === 3 ? "Tudo feito por hoje. Хорошо!" : "Seu plano de hoje"}</h2></div>
+  <div class="card hero">
+    <div class="ring"><svg viewBox="0 0 92 92"><circle class="trk" cx="46" cy="46" r="41"/><circle class="val" cx="46" cy="46" r="41" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-n/3)}"/></svg><b>${n}/3</b></div>
+    <p class="muted">${prog.streak ? `Você está há <b>${prog.streak} ${prog.streak===1?"dia":"dias"}</b> seguidos estudando. ` : ""}${n === 3 ? "A sequência de hoje está garantida." : "Complete as três tarefas para manter a sequência."}</p>
+  </div>
+  <div class="tasks">${tasks.map(t => `<a class="task ${t.done?"done":""}" href="${t.href}"><span class="tick">${ic("check")}</span><div><b>${esc(t.t)}</b><small>${esc(t.s)}</small></div></a>`).join("")}</div>
+  ${ph ? `<div class="card stack"><span class="eyebrow">Frase do dia</span><div class="row" style="flex-wrap:nowrap;align-items:flex-start">${spk(ph.ru)}<div><div class="quote">${esc(ph.ru)}</div><div class="tr">${esc(ph.tr)}</div><div class="muted">${esc(ph.pt)}</div></div></div></div>` : ""}
+  <a class="card eris-card" href="#eris" style="text-decoration:none;color:inherit"><span class="avatar">Э</span><div><b>Eris está esperando.</b><div class="muted">Pratique o que aprendeu numa conversa de verdade. Ela corrige você em português.</div></div></a>`;
+}
+
+/* ---------- lição ---------- */
+function renderLicao(){
+  const el = $("#v-licao"), ls = allLessons();
+  if (!ls.length){ el.innerHTML = `<div class="head"><span class="eyebrow">Lição</span><h2>Abrindo seu caderno…</h2></div>`; return; }
+  const L = lessonByN(viewLesson ?? prog.current) || currentLesson();
+  viewLesson = L.n;
+  const done = !!prog.done[L.n], sec = [];
+  sec.push(`<div class="head"><div class="row"><span class="eyebrow">Lição ${L.n} · ${esc(L.level||"A1")}</span>${done?'<span class="pill ok">concluída</span>':''}</div><h2>${esc(L.title)}</h2><p class="lead">${esc(L.intro)}</p></div>`);
+  if (L.letters?.length) sec.push(`<div class="stack"><h3>${esc(L.lettersTitle||"Letras")}</h3>${L.lettersNote?`<p class="notice">${esc(L.lettersNote)}</p>`:""}
+    <div class="letters">${L.letters.map(x => `<button class="letter ${x.false?"false":""}" data-say="${esc((x.example||x.l).replace(/ .*/,""))}"><span class="big">${esc(x.l)}</span><span class="snd">${esc(x.sound)}</span><span class="ex">${esc(x.example||"")}${x.examplePt?" · "+esc(x.examplePt):""}</span></button>`).join("")}</div></div>`);
+  if (L.vocab?.length) sec.push(`<div class="stack"><h3>Vocabulário</h3><div class="vocab">${L.vocab.map(v => `<div class="it"><div><span class="ru">${esc(v.ru)}</span> <span class="tr">${esc(v.tr)}</span></div><span class="pt">${esc(v.pt)}</span>${spk(v.ru)}</div>`).join("")}</div></div>`);
+  (L.grammar||[]).forEach(g => sec.push(`<div class="stack prose"><h3>${esc(g.title)}</h3><p>${esc(g.body)}</p>
+    <div class="stack" style="gap:14px;margin-top:6px">${(g.examples||[]).map(x => `<div class="example">${spk(x.ru)}<div><div class="ru">${esc(x.ru)}</div><div class="tr">${esc(x.tr)}</div><div class="muted">${esc(x.pt)}</div></div></div>`).join("")}</div></div>`));
+  if (L.exercises?.length){
+    const st = prog.quiz[L.n] || {};
+    sec.push(`<div class="card quiz"><h3>Exercícios</h3>${L.exercises.map((q,i) => { const a = st[i];
+      return `<div class="q" data-i="${i}"><div><b>${i+1}.</b> ${esc(q.q)}</div><div class="opts">${q.options.map((o,j) => { let c=""; if (a!=null){ if (j===q.answer) c="right"; else if (j===a) c="wrong"; }
+        return `<button class="opt ${c}" data-j="${j}" ${a!=null?"disabled":""}>${esc(o)}</button>`; }).join("")}</div><div class="explain" ${a==null?"hidden":""}>${esc(q.explain||"")}</div></div>`; }).join("")}
+      <div class="row"><button class="btn" id="finish" ${done?"disabled":""}>${done?"Lição concluída":"Concluir lição (+50 XP)"}</button><span class="muted" id="quiz-score"></span></div></div>`);
+  }
+  if (L.conversation) sec.push(`<div class="card eris-card"><span class="avatar">Э</span><div class="stack"><h3>Missão com a Eris</h3><p>${esc(L.conversation.pt)}</p><div><a class="btn ghost" href="#eris">Ir conversar</a></div></div></div>`);
+  const ns = ls.map(l => l.n), idx = ns.indexOf(L.n), hasNext = idx < ns.length-1;
+  sec.push(`<div class="row">${idx>0?`<button class="btn ghost" data-go="${ns[idx-1]}">← Lição ${ns[idx-1]}</button>`:""}${hasNext?`<button class="btn ghost" data-go="${ns[idx+1]}">Lição ${ns[idx+1]} →</button>`:""}${!hasNext && done?`<button class="btn" id="gen">Gerar a lição ${L.n+1}</button>`:""}<span class="muted" id="gen-note"></span></div>`);
+  el.innerHTML = sec.join("");
+  const st = prog.quiz[L.n] || {}, right = Object.keys(st).filter(k => st[k] === L.exercises[k].answer).length;
+  const s = $("#quiz-score"); if (s && Object.keys(st).length) s.textContent = `${right} de ${L.exercises.length} certas`;
+}
+$("#v-licao").addEventListener("click", e => {
+  const L = lessonByN(viewLesson);
+  const opt = e.target.closest(".opt");
+  if (opt && L){
+    const i = +opt.closest(".q").dataset.i, j = +opt.dataset.j;
+    prog.quiz[L.n] = prog.quiz[L.n] || {};
+    if (prog.quiz[L.n][i] != null) return;
+    prog.quiz[L.n][i] = j;
+    if (j === L.exercises[i].answer) addXp(10); else save();
+    renderLicao(); return;
+  }
+  if (e.target.id === "finish" && L){ prog.done[L.n] = today(); day().lesson = true; if (prog.current <= L.n) prog.current = L.n + 1; addXp(50); renderLicao(); toast("Lição concluída! +50 XP"); return; }
+  const go = e.target.closest("[data-go]"); if (go){ viewLesson = +go.dataset.go; renderLicao(); scrollTo(0,0); return; }
+  if (e.target.id === "gen") generateLesson();
+});
+async function generateLesson(){
+  const note = $("#gen-note"), btn = $("#gen");
+  if (!hasAI()){ note.textContent = aiError({code:"no_key"}); return; }
+  btn.disabled = true; note.textContent = "Preparando a lição… leva cerca de um minuto.";
+  const ls = allLessons(), n = ls[ls.length-1].n + 1;
+  const summary = ls.map(l => `Lição ${l.n} (${l.level}): ${l.title}. Vocabulário: ${(l.vocab||[]).map(v=>v.ru).join(", ")}. Gramática: ${(l.grammar||[]).map(g=>g.title).join("; ")}`).join("\n");
+  const schema = JSON.stringify({level:"A1", title:"...", intro:"...", lettersTitle:"(opcional)", lettersNote:"(opcional)", letters:[{l:"Б б", sound:"b", example:"банк", examplePt:"banco", false:false}], vocab:[{ru:"",tr:"",pt:""}], grammar:[{title:"",body:"",examples:[{ru:"",tr:"",pt:""}]}], phrases:[{ru:"",tr:"",pt:""}], exercises:[{q:"",options:["","","",""],answer:0,explain:""}], conversation:{pt:"", scenario:""}});
+  try{
+    const L = await askJSON(`Você é um professor de russo para um falante de português do Brasil. Crie a lição ${n} de um curso que leva do zero à fluência, continuando de onde as lições anteriores pararam. Uma lição por dia, 15 a 20 minutos.\nLições anteriores:\n${summary}\n\nRegras: explicações em português do Brasil, claras e curtas. Todo russo em cirílico, com acento tônico marcado (acento agudo combinante) e transliteração simples em "tr". Inclua 8 a 12 palavras de vocabulário, 1 ou 2 pontos de gramática com exemplos, 5 a 8 frases para treino de fala ("phrases"), 6 exercícios de múltipla escolha (answer = índice da opção certa) e uma missão de conversa: "conversation.pt" explica a missão ao aluno e "conversation.scenario" descreve a cena em português para a Eris, uma espadachim de cabelo vermelho que conversa com o aluno. Revise palavras anteriores nos exercícios. Enquanto o alfabeto não estiver todo coberto, inclua "letters" só com letras novas; depois, omita. Responda só com um objeto JSON neste formato: ${schema}`,
+      [{role:"user", content:`Crie a lição ${n}.`}], {tier:"complex"});
+    if (!L?.title || !Array.isArray(L.exercises)) throw {code:"invalid_json"};
+    L.n = n; L.createdAt = today();
+    if (db){ await db.doc("lessons/l" + String(n).padStart(3,"0")).set(L); } else { extraLessons.push(L); store.set("ru-lessons", extraLessons); }
+    viewLesson = n; renderLicao(); scrollTo(0,0);
+  }catch(err){ btn.disabled = false; note.textContent = aiError(err) || "Não consegui montar a lição desta vez."; }
+}
+
+/* ---------- fala ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let srBlocked = !SR, drillIdx = 0, drillFilter = "all", recog = null;
+const norm = s => s.toLowerCase().replace(/́/g,"").replace(/ё/g,"е").replace(/[^\p{L}\s-]/gu," ").split(/\s+/).filter(Boolean);
+function lev(a,b){ const m=a.length,n=b.length; if(!m) return n; if(!n) return m; let p=[...Array(n+1).keys()]; for(let i=1;i<=m;i++){ const c=[i]; for(let j=1;j<=n;j++) c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); p=c; } return p[n]; }
+function compare(target, said){
+  const t = norm(target), pool = norm(said);
+  const res = t.map(w => { let k = pool.indexOf(w); if (k < 0 && w.length >= 5) k = pool.findIndex(x => lev(w,x) <= 1); if (k >= 0){ pool.splice(k,1); return {w, ok:true}; } return {w, ok:false}; });
+  return {res, score: t.length ? Math.round(100 * res.filter(r => r.ok).length / t.length) : 0};
+}
+function renderFala(){
+  const el = $("#v-fala");
+  let list = phrasePool(); if (drillFilter !== "all") list = list.filter(p => p.n === +drillFilter);
+  if (!list.length){ el.innerHTML = `<div class="head"><span class="eyebrow">Fala</span><h2>Nenhuma frase ainda</h2><p class="lead">As frases de treino aparecem assim que a primeira lição carregar.</p></div>`; return; }
+  drillIdx = ((drillIdx % list.length) + list.length) % list.length;
+  const p = list[drillIdx], d = day();
+  const opts = ["all", ...new Set(phrasePool().map(x => x.n))].map(v => `<option value="${v}" ${String(v)===String(drillFilter)?"selected":""}>${v==="all"?"Todas as lições":"Lição "+v}</option>`).join("");
+  const best = prog.spoken[p.ru] || 0;
+  el.innerHTML = `
+  <div class="head"><span class="eyebrow">Fala</span><h2>Ouça, repita, confira</h2><p class="lead">Ouça a Eris dizer a frase, fale em voz alta e veja quais palavras saíram certas. Repita até chegar a 100%.</p></div>
+  <div class="row"><label class="small" for="flt">Frases da <select id="flt">${opts}</select></label></div>
+  <div class="card drill" data-target="${esc(p.ru)}">
+    <div class="row" style="width:100%;justify-content:space-between"><span class="muted">${drillIdx+1} de ${list.length} · lição ${p.n}</span>${best?`<span class="pill ${best===100?"ok":"gold"}">melhor: ${best}%</span>`:""}</div>
+    <div><div class="target">${esc(p.ru)}</div><div class="tr" style="margin-top:6px">${esc(p.tr)}</div><div class="muted">${esc(p.pt)}</div></div>
+    <div class="row">
+      <button class="btn ghost" data-say="${esc(p.ru)}">${ic("spk")}Ouvir</button>
+      <button class="btn ghost" data-say="${esc(p.ru)}" data-rate="0.55">Devagar</button>
+      ${srBlocked ? "" : `<button class="big-mic" id="mic" aria-label="Falar agora">${ic("mic")}</button>`}
+      <span class="muted" id="mic-note"></span>
+    </div>
+    <div style="width:100%" class="stack">
+      <label class="small" for="said">${srBlocked ? "O microfone do app não está liberado aqui. Use o ditado em russo do teclado do celular ou digite:" : "Ou dite pelo teclado / digite o que você falou:"}</label>
+      <textarea id="said" rows="2" lang="ru" placeholder="Привет!"></textarea>
+      <div><button class="btn ghost" id="check">Conferir</button></div>
+    </div>
+    <div id="result" style="width:100%"></div>
+    <div class="row"><button class="btn ghost" id="prev">← Anterior</button><button class="btn ghost" id="next">Próxima →</button></div>
+  </div>`;
+}
+function showResult(said){
+  const target = $("#v-fala .drill").dataset.target, {res, score} = compare(target, said);
+  $("#result").innerHTML = `<div class="stack"><div class="row"><span class="score">${score}%</span><div class="words">${res.map(r => `<span class="${r.ok?"hit":"miss"}">${esc(r.w)}</span>`).join("")}</div></div>
+    <p class="muted">Entendido: “${esc(said)}”${score===100?" · perfeito!":" · ouça de novo e repita as palavras sublinhadas."}</p></div>`;
+  day().speak++;
+  const prev = prog.spoken[target] || 0;
+  if (score > prev){ prog.spoken[target] = score; }
+  if (score === 100 && prev < 100) addXp(5); else { addXp(1); }
+}
+$("#v-fala").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "next"){ drillIdx++; renderFala(); }
+  if (b.id === "prev"){ drillIdx--; renderFala(); }
+  if (b.id === "check"){ const v = $("#said").value.trim(); if (v) showResult(v); }
+  if (b.id === "mic") listen();
+});
+$("#v-fala").addEventListener("change", e => { if (e.target.id === "flt"){ drillFilter = e.target.value; drillIdx = 0; renderFala(); } });
+function listen(){
+  const note = $("#mic-note"), btn = $("#mic");
+  if (recog){ try{ recog.stop(); }catch(e){} return; }
+  try{
+    speechSynthesis?.cancel();
+    const r = recog = new SR(); r.lang = "ru-RU"; r.interimResults = false; r.maxAlternatives = 4;
+    btn.classList.add("live"); note.textContent = "Ouvindo… fale agora";
+    r.onresult = ev => {
+      const target = $("#v-fala .drill").dataset.target;
+      const alts = [...ev.results[0]].map(a => a.transcript).sort((a,b) => compare(target,b).score - compare(target,a).score);
+      $("#said").value = alts[0]; showResult(alts[0]);
+    };
+    r.onerror = ev => {
+      if (["not-allowed","service-not-allowed","audio-capture"].includes(ev.error)){ srBlocked = true; recog = null; renderFala(); toast("O microfone não está liberado aqui. Use o ditado do teclado ou abra o app instalado."); }
+      else if (ev.error === "no-speech") note.textContent = "Não ouvi nada. Tente de novo.";
+      else if (ev.error === "network") note.textContent = "O reconhecimento precisa de internet.";
+    };
+    r.onend = () => { recog = null; btn?.classList.remove("live"); if (note.textContent.startsWith("Ouvindo")) note.textContent = ""; };
+    r.start();
+  }catch(err){ recog = null; srBlocked = true; renderFala(); }
+}
+
+/* ---------- eris (conversa) ---------- */
+let turns = store.get("ru-turns", []), chatView = store.get("ru-chat", []), fixes = true, ctl = null, busy = false;
+const keepChat = () => { store.set("ru-turns", turns.slice(-40)); store.set("ru-chat", chatView.slice(-60)); };
+function rules(){
+  const L = currentLesson(), known = allLessons().filter(l => l.n <= (L?.n||1)).flatMap(l => (l.vocab||[]).map(v => v.ru)).join(", ");
+  return `Você é Eris (Эрис), uma jovem espadachim de cabelo vermelho, orgulhosa e de temperamento forte. Você conversa em russo com um estudante brasileiro de nível ${L?.level||"A1"} (lição ${L?.n||1}). Cena: ${L?.conversation?.scenario || "Vocês acabaram de se encontrar na entrada de uma guilda em São Petersburgo."}
+Personalidade: direta, impaciente, um pouco "tsundere". Elogia a contragosto ("Неплохо." = nada mal) e incentiva com firmeza, mas nunca é cruel nem ofensiva. Nada de violência real; no máximo provocações leves e bem-humoradas.
+Palavras que o aluno já conhece: ${known}.
+Regras:
+- Responda SEMPRE em russo simples: 1 a 3 frases curtas, quase só com palavras que ele conhece; no máximo uma palavra nova por mensagem.
+- Termine com uma pergunta simples para manter a conversa.
+- Se ele escrever em português, responda em russo mostrando como ele poderia falar aquilo.
+- No campo "fix", em português, aponte erros da ÚLTIMA mensagem dele (grafia, caso, gênero, ordem) e mostre a forma certa em cirílico, no tom firme e carinhoso da Eris. Se estiver tudo certo, use "".
+Responda só com JSON: {"ru":"resposta em cirílico com acento tônico","tr":"transliteração simples","pt":"tradução para português","fix":"correção ou vazio"}.
+Sua primeira mensagem já enviada: "${ERIS_HELLO.ru}"`;
+}
+function renderEris(){
+  const el = $("#v-eris");
+  el.innerHTML = `
+  <div class="head"><span class="eyebrow">Conversa</span><h2>Converse com a Eris</h2><p class="lead">Escreva ou dite em russo. Se travar, escreva em português que ela ajuda. A cena muda conforme a sua lição.</p></div>
+  <div class="row"><label class="small" for="fixes"><input type="checkbox" id="fixes" ${fixes?"checked":""}> Mostrar correções em português</label><button class="btn ghost" id="reset">Nova conversa</button></div>
+  <div class="chat" id="chat"></div>
+  <div class="composer"><label class="sr" for="say-in">Sua mensagem</label>
+    <textarea id="say-in" rows="2" lang="ru" placeholder="Привет! Меня зовут…"></textarea>
+    <div class="row"><button class="btn" id="send">Enviar</button><button class="btn ghost" id="stop" hidden>Parar</button><span class="muted" id="chat-note"></span></div></div>`;
+  drawChat();
+}
+const erisBubble = m => `<div class="msg her"><span class="avatar sm">Э</span><div class="bub">${m.typing ? '<span class="typing"><i></i><i></i><i></i></span>' : `<div class="row" style="flex-wrap:nowrap;align-items:flex-start">${m.ru?spk(m.ru):""}<div><div class="ru">${esc(m.ru||"")}</div>${m.tr?`<div class="tr">${esc(m.tr)}</div>`:""}${m.pt?`<details><summary>Tradução</summary><div class="muted">${esc(m.pt)}</div></details>`:""}</div></div>${m.fix&&fixes?`<div class="fix">${esc(m.fix)}</div>`:""}`}</div></div>`;
+function drawChat(){
+  const c = $("#chat"); if (!c) return;
+  const all = [{...ERIS_HELLO}, ...chatView];
+  c.innerHTML = all.map(m => m.me ? `<div class="msg me"><div class="bub">${esc(m.text)}</div></div>` : erisBubble(m)).join("") + (busy ? erisBubble({typing:true}) : "");
+  c.lastElementChild?.scrollIntoView({block:"nearest"});
+}
+async function send(){
+  if (busy) return;
+  const box = $("#say-in"), note = $("#chat-note"), text = box.value.trim(); if (!text) return;
+  if (!hasAI()){ note.textContent = aiError({code:"no_key"}); return; }
+  box.value = ""; chatView.push({me:true, text}); turns.push({role:"user", content:text});
+  busy = true; drawChat(); note.textContent = ""; $("#send").disabled = true; $("#stop").hidden = false;
+  ctl = new AbortController();
+  try{
+    let t = turns.slice(-20); while (t.length && t[0].role !== "user") t.shift();
+    const r = await askJSON(rules(), t, {tier:"quick", signal:ctl.signal});
+    const m = {ru:String(r.ru||""), tr:String(r.tr||""), pt:String(r.pt||""), fix:String(r.fix||"")};
+    chatView.push(m); turns.push({role:"assistant", content:JSON.stringify({ru:m.ru, tr:m.tr, pt:m.pt, fix:m.fix})});
+    day().chat++; addXp(2); busy = false; drawChat(); say(m.ru);
+  }catch(e){
+    busy = false; turns.pop(); chatView.pop(); box.value = text; drawChat();
+    note.textContent = aiError(e);
+  }finally{ busy = false; $("#send") && ($("#send").disabled = false); $("#stop") && ($("#stop").hidden = true); keepChat(); }
+}
+$("#v-eris").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "send") send();
+  if (b.id === "stop") ctl?.abort();
+  if (b.id === "reset"){ turns = []; chatView = []; keepChat(); drawChat(); }
+});
+$("#v-eris").addEventListener("change", e => { if (e.target.id === "fixes"){ fixes = e.target.checked; drawChat(); } });
+$("#v-eris").addEventListener("keydown", e => { if (e.target.id === "say-in" && e.key === "Enter" && !e.shiftKey){ e.preventDefault(); send(); } });
+
+/* ---------- progresso ---------- */
+function renderProgresso(){
+  const el = $("#v-progresso"), ls = allLessons(), pool = phrasePool();
+  const mastered = pool.filter(p => (prog.spoken[p.ru]||0) === 100).length;
+  const doneN = Object.keys(prog.done).length;
+  const cells = [];
+  for (let i = 34; i >= 0; i--){ const dt = new Date(Date.now() - i*864e5), x = prog.days[dkey(dt)]?.xp || 0; cells.push(`<i class="${x>=40?"l3":x>=15?"l2":x>0?"l1":""}" title="${dkey(dt)}: ${x} XP"></i>`); }
+  el.innerHTML = `
+  <div class="head"><span class="eyebrow">Progresso</span><h2>${prog.streak ? `${prog.streak} ${prog.streak===1?"dia seguido":"dias seguidos"}` : "Comece hoje a sua sequência"}</h2></div>
+  <div class="grid2"><div class="card stat"><b>${prog.xp}</b><span>XP total</span></div><div class="card stat"><b>${doneN}</b><span>${doneN===1?"lição concluída":"lições concluídas"}</span></div><div class="card stat"><b>${mastered}</b><span>frases 100% faladas</span></div></div>
+  <div class="stack"><h3>Últimas 5 semanas</h3><div class="heat">${cells.join("")}</div></div>
+  <div class="stack"><h3>Frases dominadas: ${mastered} de ${pool.length}</h3><div class="bar-track"><i style="width:${pool.length?Math.round(100*mastered/pool.length):0}%"></i></div></div>
+  <div class="stack"><h3>Lições</h3><div class="list">${ls.map(l => `<div class="item"><div><div>Lição ${l.n}: ${esc(l.title)}</div><small class="muted">${esc(l.level||"A1")}</small></div>${prog.done[l.n]?`<span class="pill ok">${esc(prog.done[l.n].split("-").reverse().join("/"))}</span>`:`<span class="pill">a fazer</span>`}</div>`).join("") || '<p class="muted">Nenhuma lição carregada.</p>'}</div></div>`;
+}
+
+/* ---------- configurações ---------- */
+function fillVoiceSelect(){
+  const s = $("#voice-sel"); if (!s) return;
+  s.innerHTML = ruVoices.length ? `<option value="">Automática</option>` + ruVoices.map(v => `<option value="${esc(v.voiceURI)}" ${v.voiceURI===set.voice?"selected":""}>${esc(v.name)}</option>`).join("") : `<option value="">Nenhuma voz russa encontrada</option>`;
+  const info = $("#voice-info");
+  if (info) info.textContent = ruVoices.length
+    ? "Usada quando não há chave do ElevenLabs ou quando ela falha. Escolha a voz russa do aparelho que soar mais próxima da Eris."
+    : "Seu aparelho não tem voz russa instalada. Instale uma nas configurações de idioma do sistema e reabra o app.";
+}
+function paintUsage(){
+  const used = elUsed(), lim = Math.max(1, set.elLimit||0), pct = Math.min(100, Math.round(100*used/lim));
+  const c = $("#el-count"), b = $("#el-bar"), w = $("#el-warn");
+  if (!c) return;
+  c.textContent = `${used.toLocaleString("pt-BR")} de ${(set.elLimit||0).toLocaleString("pt-BR")} caracteres (${pct}%)`;
+  b.style.width = pct + "%";
+  b.style.background = pct >= 100 ? "var(--bad)" : pct >= 80 ? "var(--gold)" : "var(--ember)";
+  $("#el-meter").querySelector("[role=meter]").setAttribute("aria-valuenow", pct);
+  w.textContent = pct >= 100 ? "Limite atingido. A voz do sistema está sendo usada até o mês virar." : pct >= 80 ? "Atenção: você já usou mais de 80% do limite deste mês." : "";
+}
+function openSettings(){ fillVoiceSelect(); $("#el-limit").value = set.elLimit; paintUsage(); $("#el-key").value = set.elKey; $("#el-voice").value = set.elVoice; $("#el-model").value = set.elModel; $("#el-box").hidden = !!sample; $("#rate").value = set.rate; $("#api-key").value = set.key; $("#key-box").hidden = !!sample; $("#sheet").hidden = false; }
+const closeSettings = () => { $("#sheet").hidden = true; };
+document.addEventListener("click", e => { if (e.target.closest("[data-open-settings]")) openSettings(); });
+$("#set-close").onclick = closeSettings;
+$("#sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSettings(); });
+addEventListener("keydown", e => { if (e.key === "Escape") closeSettings(); });
+$("#voice-sel").onchange = e => { set.voice = e.target.value; store.set("ru-set", set); };
+$("#rate").oninput = e => { set.rate = +e.target.value; store.set("ru-set", set); };
+$("#api-key").onchange = e => { set.key = e.target.value.trim(); store.set("ru-set", set); };
+$("#el-key").onchange = e => { set.elKey = e.target.value.trim(); saveSet(); };
+$("#el-voice").onchange = e => { set.elVoice = e.target.value.trim() || "21m00Tcm4TlvDq8ikWAM"; saveSet(); };
+$("#el-limit").onchange = e => { set.elLimit = Math.max(0, +e.target.value || 0); saveSet(); paintUsage(); };
+$("#el-model").onchange = e => { set.elModel = e.target.value; saveSet(); };
+$("#el-pick").onchange = e => { if (e.target.value){ set.elVoice = e.target.value; $("#el-voice").value = e.target.value; saveSet(); } };
+$("#el-load").onclick = async () => {
+  const note = $("#el-note"); set.elKey = $("#el-key").value.trim(); saveSet();
+  if (!set.elKey){ note.textContent = "Cole a chave primeiro."; return; }
+  note.textContent = "Carregando…";
+  try{
+    const r = await fetch("https://api.elevenlabs.io/v1/voices", {headers:{"xi-api-key":set.elKey}});
+    if (!r.ok) throw {status:r.status};
+    const vs = (await r.json()).voices || [];
+    $("#el-pick").innerHTML = `<option value="">Escolha uma voz</option>` + vs.map(v => `<option value="${esc(v.voice_id)}" ${v.voice_id===set.elVoice?"selected":""}>${esc(v.name)}${v.category?" · "+esc(v.category):""}</option>`).join("");
+    note.textContent = vs.length + " vozes encontradas.";
+  }catch(e){ note.textContent = e?.status === 401 ? "Chave recusada, ou sem permissão para listar vozes. Você ainda pode colar o ID da voz à mão." : "Não consegui carregar as vozes. Cole o ID da voz à mão."; }
+};
+$("#el-test").onclick = () => { set.elKey = $("#el-key").value.trim(); set.elVoice = $("#el-voice").value.trim() || set.elVoice; saveSet(); say("Привет. Меня зовут Эрис. Как тебя зовут?"); };
+$("#voice-test").onclick = () => say("Привет! Меня зовут Эрис. Как тебя зовут?");
+$("#reset-all").onclick = () => {
+  const b = $("#reset-all");
+  if (b.dataset.sure !== "1"){ b.dataset.sure = "1"; b.textContent = "Toque de novo para confirmar"; setTimeout(() => { b.dataset.sure = ""; b.textContent = "Apagar progresso deste aparelho"; }, 4000); return; }
+  prog = blank(); turns = []; chatView = []; save(); keepChat(); stats(); closeSettings(); route();
+};
+
+/* ---------- início ---------- */
+stats(); route();
+if ("serviceWorker" in navigator && location.protocol.startsWith("http") && !window.claude){
+  const hadSW = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (hadSW) location.reload(); });
+  navigator.serviceWorker.register("sw.js").then(reg => reg.update()).catch(() => {});
+}
+(async () => {
+  if (!window.claude?.use) return;
+  const [d, s] = await Promise.all([claude.use("db"), claude.use("sample")]);
+  sample = s; db = d;
+  if (!db) return;
+  db.collection("lessons").onSnapshot(snap => {
+    dbLessons = snap.docs.map(x => x.data()).filter(l => l && l.n);
+    refresh();
+  }, () => {});
+  try{
+    const p = await db.doc("progress/main").get();
+    if (p.exists){
+      const remote = Object.assign(blank(), p.data());
+      if ((remote.xp||0) >= (prog.xp||0)){ prog = remote; store.set("ru-prog", prog); refresh(); }
+    }
+  }catch(e){}
+})();
+})();
+</script>
+
+</body></html>
