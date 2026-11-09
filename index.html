@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://api.anthropic.com https://api.elevenlabs.io; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://api.anthropic.com https://api.elevenlabs.io https://*.tts.speech.microsoft.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#13101a">
@@ -194,6 +194,9 @@ input[type=range]{accent-color:var(--ember)}
 .cover .cap{position:absolute;left:18px;right:18px;bottom:16px;z-index:1;color:#fff}
 .cover .cap b{display:block;font-family:var(--f-display);font-size:1.25rem;line-height:1.2}
 .cover .cap span{font-size:.9rem;opacity:.9}
+.char{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:14px}
+.char>div{min-width:0}
+.avatar.finn{background:radial-gradient(circle at 30% 25%,#5b8cff,#1c3f9e 120%)}
 /* eris / chat */
 .chat{display:flex;flex-direction:column;gap:14px}
 .msg{max-width:90%;display:flex;gap:10px;align-items:flex-start}
@@ -288,22 +291,41 @@ input[type=range]{accent-color:var(--ember)}
 <div class="sheet" id="sheet" hidden>
   <div class="panel" role="dialog" aria-modal="true" aria-labelledby="set-title">
     <div class="row" style="justify-content:space-between"><h2 id="set-title" style="font-size:1.2rem">Configurações</h2><button class="btn ghost" id="set-close">Fechar</button></div>
+    <div class="stack" id="chars">
+      <h3>Quem fala com você</h3>
+      <div class="char"><span class="avatar sm">Э</span><div><b>Eris</b> · conversa<div class="muted">Responde no chat e corrige em português. Voz ElevenLabs.</div></div></div>
+      <div class="char"><span class="avatar sm finn">F</span><div><b>Finn</b> · professor de pronúncia<div class="muted">Narra vocabulário, frases e lições. Voz Azure.</div></div></div>
+    </div>
     <div class="stack" id="el-box">
-      <h3>Voz da Eris (ElevenLabs)</h3>
-      <p class="muted">Voz natural gerada por IA. Cole sua chave do ElevenLabs e escolha a voz. Se ficar vazio, o app usa a voz do sistema.</p>
+      <h3>Eris · ElevenLabs</h3>
+      <p class="muted">Voz natural por IA. Cole sua chave e escolha a voz da Eris.</p>
       <label class="small" for="el-key">Chave <input type="password" id="el-key" placeholder="sk_…" autocomplete="off"></label>
       <label class="small" for="el-voice">ID da voz <input type="text" id="el-voice" placeholder="ex.: 21m00Tcm4TlvDq8ikWAM" autocomplete="off"></label>
       <label class="small" for="el-pick">Minhas vozes <select id="el-pick"><option value="">Toque em Carregar vozes</option></select></label>
-      <div class="stack" id="el-meter">
-        <div class="row" style="justify-content:space-between"><b>Uso deste mês</b><span class="muted" id="el-count">0 de 10.000 caracteres</span></div>
-        <div class="bar-track" role="meter" aria-label="Uso do ElevenLabs no mês" aria-valuemin="0" aria-valuemax="100"><i id="el-bar" style="width:0%"></i></div>
+      <label class="small" for="el-model">Modelo <select id="el-model"><option value="eleven_flash_v2_5">Rápido e econômico (flash v2.5)</option><option value="eleven_multilingual_v2">Mais expressivo (multilingual v2)</option></select></label>
+      <div class="stack">
+        <div class="row" style="justify-content:space-between"><b>Uso deste mês</b><span class="muted" id="el-count"></span></div>
+        <div class="bar-track"><i id="el-bar" style="width:0%"></i></div>
         <p class="muted" id="el-warn" style="font-size:.88rem"></p>
       </div>
       <label class="small" for="el-limit">Limite mensal (caracteres) <input type="number" id="el-limit" min="0" step="1000" style="width:130px"></label>
-      <p class="muted" style="font-size:.85rem">Plano grátis do ElevenLabs: cerca de 10.000 caracteres por mês. Ao chegar no limite, o app usa a voz do sistema até o mês virar.</p>
-      <label class="small" for="el-model">Modelo <select id="el-model"><option value="eleven_flash_v2_5">Rápido e econômico (flash v2.5)</option><option value="eleven_multilingual_v2">Mais expressivo (multilingual v2)</option></select></label>
-      <div class="row"><button class="btn ghost" id="el-load">Carregar vozes</button><button class="btn ghost" id="el-test"><svg width="18" height="18"><use href="#i-spk"/></svg>Testar voz da Eris</button></div>
+      <div class="row"><button class="btn ghost" id="el-load">Carregar vozes</button><button class="btn ghost" id="el-test">Testar Eris</button></div>
       <p class="muted" id="el-note"></p>
+    </div>
+    <div class="stack" id="az-box">
+      <h3>Finn · Azure</h3>
+      <p class="muted">Voz masculina neural da Microsoft, com plano grátis mensal. Cole a chave e a região do seu recurso Speech (ex.: brazilsouth).</p>
+      <label class="small" for="az-key">Chave <input type="password" id="az-key" autocomplete="off"></label>
+      <label class="small" for="az-region">Região <input type="text" id="az-region" placeholder="brazilsouth" autocomplete="off"></label>
+      <label class="small" for="az-voice">Voz <select id="az-voice"><option value="ru-RU-DmitryNeural">Dmitry (masculina)</option><option value="ru-RU-SvetlanaNeural">Svetlana (feminina)</option></select></label>
+      <div class="stack">
+        <div class="row" style="justify-content:space-between"><b>Uso deste mês</b><span class="muted" id="az-count"></span></div>
+        <div class="bar-track"><i id="az-bar" style="width:0%"></i></div>
+        <p class="muted" id="az-warn" style="font-size:.88rem"></p>
+      </div>
+      <label class="small" for="az-limit">Limite mensal (caracteres) <input type="number" id="az-limit" min="0" step="10000" style="width:130px"></label>
+      <div class="row"><button class="btn ghost" id="az-test">Testar Finn</button></div>
+      <p class="muted" id="az-note"></p>
     </div>
     <div class="stack">
       <h3>Voz do sistema (reserva)</h3>
@@ -343,12 +365,13 @@ const store = {
 /* ---------- estado ---------- */
 const blank = () => ({xp:0, streak:0, lastDay:null, done:{}, quiz:{}, spoken:{}, current:1, days:{}});
 let prog = Object.assign(blank(), store.get("ru-prog", {}));
-let set = Object.assign({voice:"", rate:0.85, key:"", elKey:"", elVoice:"21m00Tcm4TlvDq8ikWAM", elModel:"eleven_flash_v2_5", elLimit:10000}, store.get("ru-set", {}));
-let elUse = store.get("ru-el-use", {month:"", chars:0});
+let set = Object.assign({rate:0.85, elKey:"", elVoice:"21m00Tcm4TlvDq8ikWAM", elModel:"eleven_flash_v2_5", elLimit:10000, azKey:"", azRegion:"", azVoice:"ru-RU-DmitryNeural", azLimit:500000}, store.get("ru-set", {}));
+let useAll = store.get("ru-use", null) || {};
+{ const old = store.get("ru-el-use", null); if (old && !useAll.el) useAll.el = old; }
 const monthKey = () => dkey().slice(0,7);
-function elUsed(){ if (elUse.month !== monthKey()) elUse = {month:monthKey(), chars:0}; return elUse.chars; }
-function elAddChars(n){ elUsed(); elUse.chars += n; store.set("ru-el-use", elUse); paintUsage(); }
-function elLeft(){ return Math.max(0, (set.elLimit||0) - elUsed()); }
+const usedOf = p => { const u = useAll[p]; return u && u.month === monthKey() ? u.chars : 0; };
+function addUse(p, n){ const m = monthKey(); if (!useAll[p] || useAll[p].month !== m) useAll[p] = {month:m, chars:0}; useAll[p].chars += n; store.set("ru-use", useAll); paintUsage(); }
+const leftOf = p => Math.max(0, (p === "el" ? set.elLimit : set.azLimit) - usedOf(p));
 let extraLessons = store.get("ru-lessons", []);
 let dbLessons = [];
 let saveTimer = null;
@@ -394,45 +417,56 @@ function erisVoice(){
   const male = /yuri|pavel|dmitry|maxim|aleksandr|ivan/i;
   return ruVoices.find(v => fem.test(v.name) && !male.test(v.name)) || ruVoices.find(v => !male.test(v.name)) || ruVoices[0] || null;
 }
-/* ElevenLabs: áudio por API, com cache no aparelho */
+/* Vozes na nuvem. Finn (Azure) narra lições e pronúncia; Eris (ElevenLabs) responde no chat. Cada uma tem cache e limite mensal. */
 const saveSet = () => store.set("ru-set", set);
 let elAudio = null;
-const elOn = () => !!set.elKey && !sample && elLeft() > 0;
-async function elFetch(text){
+const cloudOn = p => !sample && (p === "el" ? !!set.elKey : !!(set.azKey && set.azRegion));
+async function ttsBlob(p, text, rate){
   const clean = String(text).replace(/\u0301/g, "");
-  const key = "https://eris.local/tts/" + encodeURIComponent([set.elVoice, set.elModel, clean].join("|"));
+  const voice = p === "el" ? set.elVoice : set.azVoice;
+  const keyPart = p === "el" ? set.elModel : String(rate || set.rate);
+  const key = "https://eris.local/tts/" + encodeURIComponent([p, voice, keyPart, clean].join("|"));
   let cache = null; try { cache = await caches.open("eris-tts"); const hit = await cache.match(key); if (hit) return await hit.blob(); } catch(e){}
-  const r = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + encodeURIComponent(set.elVoice) + "?output_format=mp3_44100_128", {
-    method:"POST", headers:{"xi-api-key":set.elKey, "content-type":"application/json", "accept":"audio/mpeg"},
-    body:JSON.stringify({text:clean, model_id:set.elModel, ...(set.elModel === "eleven_flash_v2_5" ? {language_code:"ru"} : {}), voice_settings:{stability:0.4, similarity_boost:0.8, style:0.35, use_speaker_boost:true}})});
-  if (!r.ok){ const err = new Error("el"); err.status = r.status; throw err; }
-  elAddChars(clean.length);
+  let r;
+  if (p === "el"){
+    r = await fetch("https://api.elevenlabs.io/v1/text-to-speech/" + encodeURIComponent(voice) + "?output_format=mp3_44100_128", {
+      method:"POST", headers:{"xi-api-key":set.elKey, "content-type":"application/json", "accept":"audio/mpeg"},
+      body:JSON.stringify({text:clean, model_id:set.elModel, ...(set.elModel === "eleven_flash_v2_5" ? {language_code:"ru"} : {}), voice_settings:{stability:0.4, similarity_boost:0.8, style:0.35, use_speaker_boost:true}})});
+  } else {
+    const pct = Math.round(((rate || set.rate) - 0.85) / 0.85 * 100);
+    const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ru-RU"><voice name="${esc(voice)}"><prosody rate="${pct >= 0 ? "+" : ""}${pct}%">${esc(clean)}</prosody></voice></speak>`;
+    r = await fetch("https://" + encodeURIComponent(set.azRegion) + ".tts.speech.microsoft.com/cognitiveservices/v1", {
+      method:"POST", headers:{"Ocp-Apim-Subscription-Key":set.azKey, "Content-Type":"application/ssml+xml", "X-Microsoft-OutputFormat":"audio-24khz-96kbitrate-mono-mp3"}, body:ssml});
+  }
+  if (!r.ok){ const err = new Error(p); err.status = r.status; throw err; }
+  addUse(p, clean.length);
   const blob = await r.blob();
   try { await cache?.put(key, new Response(blob, {headers:{"content-type":"audio/mpeg"}})); } catch(e){}
   return blob;
 }
-async function sayEL(text, r){
+async function sayCloud(p, text, r){
+  const who = p === "el" ? "ElevenLabs" : "Azure";
   try{
     elAudio?.pause(); speechSynthesis?.cancel();
-    const blob = await elFetch(text), a = new Audio(URL.createObjectURL(blob));
-    a.preservesPitch = true; a.playbackRate = r && r < 0.7 ? 0.75 : Math.min(1.2, Math.max(0.7, (r || set.rate) / 0.85));
+    const blob = await ttsBlob(p, text, r), a = new Audio(URL.createObjectURL(blob));
+    if (p === "el"){ a.preservesPitch = true; a.playbackRate = r && r < 0.7 ? 0.75 : Math.min(1.2, Math.max(0.7, (r || set.rate) / 0.85)); }
     elAudio = a; await a.play(); return true;
   }catch(e){
     const st = e?.status;
-    toast(elLeft() <= 0 && set.elKey ? "Você chegou ao limite de caracteres deste mês. Usei a voz do sistema. Ajuste o limite em Configurações." : st === 401 ? "A chave do ElevenLabs foi recusada. Confira em Configurações. Usei a voz do sistema."
-      : st === 402 || st === 429 ? "Os créditos do ElevenLabs acabaram ou o limite foi atingido. Usei a voz do sistema."
-      : st === 404 || st === 422 ? "O ElevenLabs não encontrou essa voz. Confira o ID da voz em Configurações. Usei a voz do sistema."
+    toast(st === 401 || st === 403 ? `A chave do ${who} foi recusada. Confira em Configurações. Usei a voz do sistema.`
+      : st === 402 || st === 429 ? `Os créditos ou o limite do ${who} acabaram. Usei a voz do sistema.`
+      : st === 400 || st === 404 || st === 422 ? `O ${who} não aceitou a voz ou a região. Confira em Configurações. Usei a voz do sistema.`
       : e?.name === "NotAllowedError" ? "Toque no botão de ouvir de novo para liberar o áudio."
-      : "Não consegui falar com o ElevenLabs. Usei a voz do sistema.");
+      : `Não consegui falar com o ${who}. Usei a voz do sistema.`);
     return e?.name === "NotAllowedError";
   }
 }
-function say(text, r){
-  if (set.elKey && !sample && elLeft() < String(text).replace(/\u0301/g,"").length){
-    toast("Limite de caracteres do mês atingido. Usei a voz do sistema. Ajuste o limite em Configurações.");
-    sayBrowser(text, r); return;
+function say(text, r, who="finn"){
+  const p = who === "eris" ? "el" : "az", n = String(text).replace(/\u0301/g, "").length;
+  if (cloudOn(p)){
+    if (leftOf(p) >= n){ sayCloud(p, text, r).then(ok => { if (!ok) sayBrowser(text, r); }); return; }
+    toast("Limite de caracteres deste mês atingido. Usei a voz do sistema. Ajuste o limite em Configurações.");
   }
-  if (elOn()){ sayEL(text, r).then(ok => { if (!ok) sayBrowser(text, r); }); return; }
   sayBrowser(text, r);
 }
 function sayBrowser(text, r){
@@ -534,7 +568,7 @@ function renderLicao(){
   sec.push(`<div class="head"><div class="row"><span class="eyebrow">Lição ${L.n} · ${esc(L.level||"A1")}</span>${done?'<span class="pill ok">concluída</span>':''}</div><h2>${esc(L.title)}</h2><p class="lead">${esc(L.intro)}</p></div>`);
   if (L.letters?.length) sec.push(`<div class="stack"><h3>${esc(L.lettersTitle||"Letras")}</h3>${L.lettersNote?`<p class="notice">${esc(L.lettersNote)}</p>`:""}
     <div class="letters">${L.letters.map(x => `<button class="letter ${x.false?"false":""}" data-say="${esc((x.example||x.l).replace(/ .*/,""))}"><span class="big">${esc(x.l)}</span><span class="snd">${esc(x.sound)}</span><span class="ex">${esc(x.example||"")}${x.examplePt?" · "+esc(x.examplePt):""}</span></button>`).join("")}</div></div>`);
-  if (L.vocab?.length) sec.push(`<div class="stack"><h3>Vocabulário</h3><div class="vocab">${L.vocab.map(v => `<div class="it"><div><span class="ru">${esc(v.ru)}</span> <span class="tr">${esc(v.tr)}</span></div><span class="pt">${esc(v.pt)}</span>${spk(v.ru)}</div>`).join("")}</div></div>`);
+  if (L.vocab?.length) sec.push(`<div class="stack"><div class="row"><h3>Vocabulário</h3><span class="pill">Finn narra</span></div><div class="vocab">${L.vocab.map(v => `<div class="it"><div><span class="ru">${esc(v.ru)}</span> <span class="tr">${esc(v.tr)}</span></div><span class="pt">${esc(v.pt)}</span>${spk(v.ru)}</div>`).join("")}</div></div>`);
   (L.grammar||[]).forEach(g => sec.push(`<div class="stack prose"><h3>${esc(g.title)}</h3><p>${esc(g.body)}</p>
     <div class="stack" style="gap:14px;margin-top:6px">${(g.examples||[]).map(x => `<div class="example">${spk(x.ru)}<div><div class="ru">${esc(x.ru)}</div><div class="tr">${esc(x.tr)}</div><div class="muted">${esc(x.pt)}</div></div></div>`).join("")}</div></div>`));
   if (L.exercises?.length){
@@ -707,7 +741,7 @@ async function send(){
     const r = await askJSON(rules(), t, {tier:"quick", signal:ctl.signal});
     const m = {ru:String(r.ru||""), tr:String(r.tr||""), pt:String(r.pt||""), fix:String(r.fix||"")};
     chatView.push(m); turns.push({role:"assistant", content:JSON.stringify({ru:m.ru, tr:m.tr, pt:m.pt, fix:m.fix})});
-    day().chat++; addXp(2); busy = false; drawChat(); say(m.ru);
+    day().chat++; addXp(2); busy = false; drawChat(); say(m.ru, 0, "eris");
   }catch(e){
     busy = false; turns.pop(); chatView.pop(); box.value = text; drawChat();
     note.textContent = aiError(e);
@@ -746,17 +780,15 @@ function fillVoiceSelect(){
     ? "Usada quando não há chave do ElevenLabs ou quando ela falha. Escolha a voz russa do aparelho que soar mais próxima da Eris."
     : "Seu aparelho não tem voz russa instalada. Instale uma nas configurações de idioma do sistema e reabra o app.";
 }
-function paintUsage(){
-  const used = elUsed(), lim = Math.max(1, set.elLimit||0), pct = Math.min(100, Math.round(100*used/lim));
-  const c = $("#el-count"), b = $("#el-bar"), w = $("#el-warn");
-  if (!c) return;
-  c.textContent = `${used.toLocaleString("pt-BR")} de ${(set.elLimit||0).toLocaleString("pt-BR")} caracteres (${pct}%)`;
-  b.style.width = pct + "%";
-  b.style.background = pct >= 100 ? "var(--bad)" : pct >= 80 ? "var(--gold)" : "var(--ember)";
-  $("#el-meter").querySelector("[role=meter]").setAttribute("aria-valuenow", pct);
+function paintMeter(p){
+  const used = usedOf(p), lim = Math.max(1, (p === "el" ? set.elLimit : set.azLimit) || 0), pct = Math.min(100, Math.round(100 * used / lim));
+  const c = $("#"+p+"-count"), b = $("#"+p+"-bar"), w = $("#"+p+"-warn"); if (!c) return;
+  c.textContent = `${used.toLocaleString("pt-BR")} de ${lim.toLocaleString("pt-BR")} caracteres (${pct}%)`;
+  b.style.width = pct + "%"; b.style.background = pct >= 100 ? "var(--bad)" : pct >= 80 ? "var(--gold)" : "var(--ember)";
   w.textContent = pct >= 100 ? "Limite atingido. A voz do sistema está sendo usada até o mês virar." : pct >= 80 ? "Atenção: você já usou mais de 80% do limite deste mês." : "";
 }
-function openSettings(){ fillVoiceSelect(); $("#el-limit").value = set.elLimit; paintUsage(); $("#el-key").value = set.elKey; $("#el-voice").value = set.elVoice; $("#el-model").value = set.elModel; $("#el-box").hidden = !!sample; $("#rate").value = set.rate; $("#api-key").value = set.key; $("#key-box").hidden = !!sample; $("#sheet").hidden = false; }
+const paintUsage = () => { paintMeter("el"); paintMeter("az"); };
+function openSettings(){ fillVoiceSelect(); $("#el-key").value = set.elKey; $("#el-voice").value = set.elVoice; $("#el-model").value = set.elModel; $("#el-limit").value = set.elLimit; $("#az-key").value = set.azKey; $("#az-region").value = set.azRegion; $("#az-voice").value = set.azVoice; $("#az-limit").value = set.azLimit; $("#el-box").hidden = !!sample; $("#az-box").hidden = !!sample; $("#chars").hidden = !!sample; paintUsage(); $("#rate").value = set.rate; $("#api-key").value = set.key; $("#key-box").hidden = !!sample; $("#sheet").hidden = false; }
 const closeSettings = () => { $("#sheet").hidden = true; };
 document.addEventListener("click", e => { if (e.target.closest("[data-open-settings]")) openSettings(); });
 $("#set-close").onclick = closeSettings;
@@ -782,8 +814,17 @@ $("#el-load").onclick = async () => {
     note.textContent = vs.length + " vozes encontradas.";
   }catch(e){ note.textContent = e?.status === 401 ? "Chave recusada, ou sem permissão para listar vozes. Você ainda pode colar o ID da voz à mão." : "Não consegui carregar as vozes. Cole o ID da voz à mão."; }
 };
-$("#el-test").onclick = () => { set.elKey = $("#el-key").value.trim(); set.elVoice = $("#el-voice").value.trim() || set.elVoice; saveSet(); say("Привет. Меня зовут Эрис. Как тебя зовут?"); };
-$("#voice-test").onclick = () => say("Привет! Меня зовут Эрис. Как тебя зовут?");
+$("#el-test").onclick = () => { set.elKey = $("#el-key").value.trim(); set.elVoice = $("#el-voice").value.trim() || set.elVoice; saveSet(); say("Привет. Меня зовут Эрис. Как тебя зовут?", 0, "eris"); };
+$("#az-key").onchange = e => { set.azKey = e.target.value.trim(); saveSet(); };
+$("#az-region").onchange = e => { set.azRegion = e.target.value.trim().toLowerCase().replace(/\s/g, ""); saveSet(); };
+$("#az-voice").onchange = e => { set.azVoice = e.target.value; saveSet(); };
+$("#az-limit").onchange = e => { set.azLimit = Math.max(0, +e.target.value || 0); saveSet(); paintUsage(); };
+$("#az-test").onclick = () => {
+  set.azKey = $("#az-key").value.trim(); set.azRegion = $("#az-region").value.trim().toLowerCase().replace(/\s/g, ""); set.azVoice = $("#az-voice").value; saveSet();
+  const n = $("#az-note"); if (!set.azKey || !set.azRegion){ n.textContent = "Cole a chave e a região primeiro."; return; }
+  n.textContent = ""; say("Привет. Меня зовут Финн. Я помогу тебе с произношением.", 0, "finn");
+};
+$("#voice-test").onclick = () => sayBrowser("Привет! Меня зовут Эрис. Как тебя зовут?");
 $("#reset-all").onclick = () => {
   const b = $("#reset-all");
   if (b.dataset.sure !== "1"){ b.dataset.sure = "1"; b.textContent = "Toque de novo para confirmar"; setTimeout(() => { b.dataset.sure = ""; b.textContent = "Apagar progresso deste aparelho"; }, 4000); return; }
